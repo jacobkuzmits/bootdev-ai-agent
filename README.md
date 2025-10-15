@@ -144,10 +144,6 @@ This Boot.dev course project teaches:
 - Implementing iterative AI problem-solving workflows
 - Creating natural language interfaces for developer tools
 
-## Course Context
-
-This project is part of the Boot.dev curriculum.
-
 ## Limitations
 
 - The agent operates only within the `calculator` directory for security
