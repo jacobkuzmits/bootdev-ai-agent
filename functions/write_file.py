@@ -3,7 +3,7 @@ from google.genai import types
 
 schema_write_file = types.FunctionDeclaration(
     name="write_file",
-    description="Writes to a specified file. Creates the file if it doesn't exist, or overwrites it if it does.",
+    description="Writes to a specified file. Creates the file if it doesn't exist, or overwrites it if it does. Constrained to the working directory.",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
