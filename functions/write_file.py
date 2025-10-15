@@ -1,37 +1,44 @@
 import os
 from google.genai import types
 
+
+def write_file(working_directory, file_path, content):
+    abs_working_dir = os.path.abspath(working_directory)
+    abs_file_path = os.path.abspath(os.path.join(working_directory, file_path))
+    if not abs_file_path.startswith(abs_working_dir):
+        return f'Error: Cannot write to "{file_path}" as it is outside the permitted working directory'
+    if not os.path.exists(abs_file_path):
+        try:
+            os.makedirs(os.path.dirname(abs_file_path), exist_ok=True)
+        except Exception as e:
+            return f"Error: creating directory: {e}"
+    if os.path.exists(abs_file_path) and os.path.isdir(abs_file_path):
+        return f'Error: "{file_path}" is a directory, not a file'
+    try:
+        with open(abs_file_path, "w") as f:
+            f.write(content)
+        return (
+            f'Successfully wrote to "{file_path}" ({len(content)} characters written)'
+        )
+    except Exception as e:
+        return f"Error: writing to file: {e}"
+
+
 schema_write_file = types.FunctionDeclaration(
     name="write_file",
-    description="Writes to a specified file. Creates the file if it doesn't exist, or overwrites it if it does. Constrained to the working directory.",
+    description="Writes content to a file within the working directory. Creates the file if it doesn't exist.",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
             "file_path": types.Schema(
                 type=types.Type.STRING,
-                description="The relative path of the file to write. Constrained to the working directory.",
+                description="Path to the file to write, relative to the working directory.",
             ),
-			"content": types.Schema(
-				type=types.Type.OBJECT,
-				description="The file content to write."
-			)
+            "content": types.Schema(
+                type=types.Type.STRING,
+                description="Content to write to the file",
+            ),
         },
+        required=["file_path", "content"],
     ),
 )
-
-def write_file(working_directory, file_path, content):
-	target_relative_path = os.path.join(working_directory, file_path)
-	target_absolute_path = os.path.abspath(target_relative_path)
-	current_absolute_path = os.path.abspath(working_directory)
-
-	# prevent escaping the working_directory
-	if not target_absolute_path.startswith(current_absolute_path):
-		return f'    Error: Cannot write to "{file_path}" as it is outside the permitted working directory\n'
-
-	# create file if it doesn't exist
-	# if not os.path.exists(target_relative_path):
-		# os.makedirs()
-
-	with open(target_relative_path, "w") as f:
-		f.write(content)
-		return f'Successfully wrote to "{file_path}" ({len(content)} characters written)'
